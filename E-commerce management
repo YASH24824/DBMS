@@ -1,0 +1,308 @@
+-- Create a table to store Cart
+CREATE TABLE Cart
+(
+    Cart_id VARCHAR(255) NOT NULL UNIQUE,
+    PRIMARY KEY(Cart_id)
+);
+
+-- Create a table to store Seller information
+CREATE TABLE Seller
+(
+    Seller_id VARCHAR(255) NOT NULL UNIQUE,
+    s_pass VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Address VARCHAR(255) NOT NULL,
+    PRIMARY KEY (Seller_id)
+);
+
+-- Create a table to store Seller Phone numbers
+CREATE TABLE Seller_Phone_num
+(
+    Phone_num BIGINT NOT NULL UNIQUE,
+    Seller_id VARCHAR(255) NOT NULL UNIQUE,
+    PRIMARY KEY (Phone_num, Seller_id),
+    FOREIGN KEY (Seller_id) REFERENCES Seller(Seller_id)
+    ON DELETE CASCADE,
+    -- Add a CHECK constraint to ensure phone numbers are exactly 10 digits
+    CONSTRAINT chk_phone_length CHECK (LENGTH(Phone_num::VARCHAR) = 10)
+);
+
+-- Create a table to store Product information
+CREATE TABLE Product
+(
+    Product_id VARCHAR(255) NOT NULL UNIQUE,
+    Type VARCHAR(255) NOT NULL,
+    Color VARCHAR(255) NOT NULL,
+    P_Size VARCHAR(255) NOT NULL,
+    Gender CHAR(1) NOT NULL,
+    Commission BIGINT NOT NULL,
+    Cost BIGINT NOT NULL,
+    Quantity INT NOT NULL,
+    Seller_id VARCHAR(255) ,
+    PRIMARY KEY (Product_id),
+    FOREIGN KEY (Seller_id) REFERENCES Seller(Seller_id)
+    ON DELETE SET NULL
+);
+
+-- Create a table to store Cart items
+CREATE TABLE Cart_item
+(
+    Quantity_wished INT NOT NULL,
+    Date_Added DATE NOT NULL,
+    Cart_id VARCHAR(255) NOT NULL ,
+    Product_id VARCHAR(255) NOT NULL ,
+    FOREIGN KEY (Cart_id) REFERENCES Cart(Cart_id),
+    FOREIGN KEY (Product_id) REFERENCES Product(Product_id),
+    Primary key(Cart_id, Product_id),
+    purchased VARCHAR(255) DEFAULT 'NO'
+);
+
+-- Create a table to store Customer information
+CREATE TABLE Customer
+(
+    Customer_id VARCHAR(255) NOT NULL UNIQUE,
+    c_pass VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Address VARCHAR(255) NOT NULL,
+    Pincode INT NOT NULL,
+    Phone_number_s BIGINT NOT NULL UNIQUE,
+    PRIMARY KEY (Customer_id),
+    Cart_id VARCHAR(255) NOT NULL,
+    FOREIGN KEY(Cart_id) REFERENCES cart(Cart_id),
+    -- Add a CHECK constraint to ensure phone numbers are exactly 10 digits
+    CONSTRAINT chk_phone_length CHECK (LENGTH(Phone_number_s::VARCHAR) = 10)
+);
+
+-- Create a table to store Payment information
+CREATE TABLE Payment
+(
+    payment_id VARCHAR(255) NOT NULL UNIQUE,
+    payment_date DATE NOT NULL,
+    Payment_type VARCHAR(255) NOT NULL,
+    Customer_id VARCHAR(255) NOT NULL UNIQUE,
+    Cart_id VARCHAR(255) NOT NULL UNIQUE,
+    PRIMARY KEY (payment_id),
+    FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id),
+    FOREIGN KEY (Cart_id) REFERENCES Cart(Cart_id),
+    total_amount NUMERIC(20, 2)
+);
+
+Drop table Payment;
+Drop table Customer;
+Drop table Cart_item;
+Drop table Product;
+Drop table Seller_Phone_num ;
+Drop table Seller;
+Drop table Cart;
+
+
+
+-- Insert sample data into the Cart table
+INSERT INTO Cart (Cart_id) VALUES
+    ('crt1011'),
+    ('crt1012'),
+    ('crt1013'),
+    ('crt1014'),
+    ('crt1015'),
+    ('crt1016'),
+    ('crt1017'),
+    ('crt1018'),
+    ('crt1019'),
+    ('crt1020');
+
+-- Insert sample data into the Customer table
+INSERT INTO Customer (Customer_id, c_pass, Name, Address, Pincode, Phone_number_s, Cart_id) VALUES
+    ('cid100', 'ABCM1235', 'rajat', 'G-453', 632014, 9893135876, 'crt1011'),
+    ('cid101', 'WXYZ1234', 'Utsav', 'A-123', 560001, 9876543210, 'crt1012'),
+    ('cid102', 'PQRS5678', 'Prit', 'B-789', 110011, 1234567890, 'crt1013'),
+    ('cid103', 'LMNO9876', 'kunj', 'C-456', 411041, 9876123450, 'crt1014'),
+    ('cid104', 'ABCM1235', 'mihir', 'D-789', 500010, 9898888888, 'crt1015'),
+    ('cid105', 'WXYZ1234', 'vipul', 'E-123', 700101, 9876541234, 'crt1016'),
+    ('cid106', 'PQRS5678', 'kevin', 'F-789', 800001, 9871122334, 'crt1017'),
+    ('cid107', 'LMNO9876', 'kartavya', 'G-456', 900010, 9899999999, 'crt1018'),
+    ('cid108', 'ABCM1235', 'krish', 'H-789', 600001, 9876785678, 'crt1019'),
+    ('cid109', 'WXYZ1234', 'shlok', 'I-123', 700071, 9876565656, 'crt1020');
+
+-- Insert sample data into the Seller table
+INSERT INTO Seller (Seller_id, s_pass, Name, Address) VALUES
+    ('sid100', '12345', 'aman', 'delhi cmc'),
+    ('sid101', '56789', 'yogi', 'mumbai abc'),
+    ('sid102', '98765', 'vedant', 'Amedabad xyz');
+
+-- Insert sample data into the Product table
+INSERT INTO Product (Product_id, Type, Color, P_Size, Gender, Commission, Cost, Quantity, Seller_id) VALUES
+    ('pid1001', 'jeans', 'red', '32', 'M', 10, 10005, 20, 'sid100'),
+    ('pid1002', 'shirt', 'blue', 'L', 'F', 8, 8000, 15, 'sid101'),
+    ('pid1003', 'shoes', 'black', '42', 'M', 12, 15000, 10, 'sid102');
+
+-- Insert sample data into the Seller_Phone_num table
+INSERT INTO Seller_Phone_num (Phone_num, Seller_id) VALUES
+    (9943336206, 'sid100'),
+    (9876123456, 'sid101'),
+    (9899999999, 'sid102');
+
+-- Insert sample data into the Cart_item table
+INSERT INTO Cart_item (Quantity_wished, Date_Added, Cart_id, Product_id, Purchased) VALUES
+    (3, '1999-10-10', 'crt1011', 'pid1001', 'Y'),
+    (2, '2000-05-15', 'crt1012', 'pid1002', 'N'),
+    (4, '2001-07-20', 'crt1013', 'pid1003', 'Y'),
+    (1, '2002-09-25', 'crt1014', 'pid1001', 'N'),
+    (5, '2003-12-30', 'crt1015', 'pid1002', 'Y'),
+    (2, '2004-04-05', 'crt1016', 'pid1003', 'N'),
+    (3, '2005-06-10', 'crt1017', 'pid1001', 'Y'),
+    (4, '2006-08-15', 'crt1018', 'pid1002', 'Y'),
+    (2, '2007-10-20', 'crt1019', 'pid1003', 'N'),
+    (1, '2008-12-25', 'crt1020', 'pid1001', 'Y');
+
+-- Insert sample data into the Payment table
+INSERT INTO Payment (payment_id, payment_date, Payment_type, Customer_id, Cart_id, total_amount) VALUES
+    ('pmt1001', '1999-10-10', 'online', 'cid100', 'crt1011', NULL),
+    ('pmt1002', '2000-05-15', 'credit', 'cid101', 'crt1012', NULL),
+    ('pmt1003', '2001-07-20', 'debit', 'cid102', 'crt1013', NULL),
+    ('pmt1004', '2002-09-25', 'cash', 'cid103', 'crt1014', NULL),
+    ('pmt1005', '2003-12-30', 'online', 'cid104', 'crt1015', NULL),
+    ('pmt1006', '2004-04-05', 'credit', 'cid105', 'crt1016', NULL),
+    ('pmt1007', '2005-06-10', 'debit', 'cid106', 'crt1017', NULL),
+    ('pmt1008', '2006-08-15', 'cash', 'cid107', 'crt1018', NULL),
+    ('pmt1009', '2007-10-20', 'online', 'cid108', 'crt1019', NULL),
+    ('pmt1010', '2008-12-25', 'credit', 'cid109', 'crt1020', NULL);
+
+
+-- Select products from the Product table that are in the cart of customer 'cid100' and have not been purchased
+SELECT * FROM Product WHERE Product_id IN (
+    SELECT Product_id FROM Cart_item WHERE Cart_id IN (
+        SELECT Cart_id FROM Customer WHERE Customer_id = 'cid100')
+	    AND purchased = 'Y');
+
+-- Select product_id and Quantity_wished from Cart_item where purchased='Y' and Cart_id matches customer 'cid101'
+SELECT Product_id, Quantity_wished FROM Cart_item WHERE purchased = 'N' AND Cart_id IN (SELECT Cart_id FROM Customer WHERE Customer_id = 'cid101');
+
+-- Select product_id, color, cost, and seller_id from Product where type is 'jeans', p_size is '32', gender is 'F', and quantity is greater than 0
+SELECT Product_id, Color, Cost, Seller_id FROM Product WHERE Type = 'jeans' AND P_Size = '32' AND Gender = 'M' AND Quantity > 0;
+
+-- Delete the entry from Cart_item where product_id is 'pid1001' and Cart_id matches customer 'cid100'
+DELETE FROM Cart_item WHERE Product_id = 'pid1001' AND Cart_id IN (SELECT Cart_id FROM Customer WHERE Customer_id = 'cid100');
+
+-- Delete the entry from the Seller table where seller_id is 'sid100'
+DELETE FROM Seller WHERE Seller_id = 'sid100';
+
+-- Update the quantity in the Product table to 0 where seller_id is NULL
+UPDATE Product SET Quantity = 0 WHERE Seller_id IS NULL;
+
+-- Select product_id from Cart_item where purchased is 'Y' and date_added is '2006-08-15'
+SELECT Product_id,Quantity_wished FROM Cart_item WHERE purchased = 'Y' AND Date_Added='2006-08-15' ;
+
+
+-- Select the count of product_id and date_added from Cart_item where purchased is 'Y' and group by date_added
+SELECT COUNT(Product_id) AS count_pid, Date_Added FROM Cart_item WHERE purchased = 'Y' GROUP BY Date_Added;
+
+-- Select the sum of (quantity_wished * cost * commission/100) as total_profit from Product and Cart_item where purchased is 'Y'
+SELECT SUM(Quantity_wished * Cost * Commission / 100) AS total_profit FROM Product Inner JOIN Cart_item ON Product.Product_id = Cart_item.Product_id WHERE purchased = 'Y';
+
+ --get the seller details
+SELECT Name, Phone_num, Address, s_pass FROM Seller INNER JOIN Seller_Phone_num ON Seller.Seller_id = Seller_Phone_num.Seller_id WHERE Seller.Seller_id = 'sid101';
+
+
+
+-- Create a function named totalProducts that takes a seller_id as a parameter and returns the total number of products for that seller
+CREATE OR REPLACE FUNCTION totalProducts(sId VARCHAR) RETURNS INT AS $$
+DECLARE
+    total INT := 0;
+BEGIN
+    SELECT COUNT(*) INTO total FROM Product WHERE Seller_id = sId;
+    RETURN total;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Execute the totalProducts function
+DO $$
+DECLARE
+    c INT;
+BEGIN
+    c := totalProducts('sid102');
+    RAISE NOTICE 'Total products: %', c;
+END;
+$$;
+
+-- Create a procedure named prod_details that takes a product_id as a parameter and raises a notice if the product doesn't exist
+CREATE OR REPLACE PROCEDURE prod_details(p_id IN VARCHAR) LANGUAGE plpgsql AS $$
+DECLARE
+    quan INT;
+BEGIN
+    SELECT Quantity INTO quan FROM Product WHERE Product_id = p_id;
+	
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Sorry, no such product exists!';	
+    END IF;
+END;
+$$;
+
+-- Create a function named numCartId that returns the number of items in a cart
+CREATE OR REPLACE FUNCTION numCartId(cd VARCHAR) RETURNS BIGINT AS $$
+DECLARE
+    total BIGINT := 0;
+BEGIN
+    SELECT COUNT(*) INTO total FROM Cart_item WHERE Cart_id = cd;
+    RETURN total;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger function named before_customer to check if a cart already exists for a customer
+CREATE OR REPLACE FUNCTION before_customer() RETURNS TRIGGER AS $$
+DECLARE
+    c VARCHAR(10);
+    n INT;
+BEGIN
+    c := NEW.Cart_id;
+    n := numCartId(c);
+    IF n > 0 THEN
+        RAISE NOTICE 'Sorry, a cart already exists for this customer!';
+    END IF;
+    INSERT INTO Cart VALUES (c);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger before_customer before inserting into the customer table
+CREATE TRIGGER before_customer
+BEFORE INSERT
+ON Customer
+FOR EACH ROW
+EXECUTE PROCEDURE before_customer();
+
+-- Create a function named total_cost to calculate the total cost of items in a cart
+CREATE OR REPLACE FUNCTION total_cost(cId IN VARCHAR) RETURNS BIGINT AS $$
+DECLARE
+    total INT := 0;
+BEGIN
+    SELECT SUM(Cost) INTO total FROM Product, Cart_item WHERE Product.Product_id = Cart_item.Product_id AND Cart_id = cId;
+    RETURN total;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger function named before_pay_up to insert payment details before inserting into the payment table
+CREATE OR REPLACE FUNCTION before_pay_up() RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO Payment VALUES (NEW.payment_id, NEW.payment_date, NEW.payment_type, NEW.customer_id, NEW.cart_id, total_cost(NEW.cart_id));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger before_pay_up before inserting into the payment table
+CREATE TRIGGER before_pay_up
+BEFORE INSERT
+ON Payment
+FOR EACH ROW
+EXECUTE PROCEDURE before_pay_up();
+
+
+-- Call totalProducts function
+SELECT totalProducts('sid102');
+
+-- Call prod_details procedure
+CALL prod_details('pid1001');
+select * from Product;
+-- Call numCartId function
+SELECT numCartId('crt1011');
+
+-- Call total_cost function
+SELECT total_cost('crt1011');
